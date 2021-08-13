@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <title>{{ title }}</title>
+    </head>
+    <style>
+        @font-face {
+            font-family: "JetBrains Mono";
+            src: url("{{ url_for('static', filename='JetBrainsMono.ttf') }}");
+        }
+
+        body {
+            background-color: {{ background_color }};
+        }
+
+        h1 {
+            color: {{ background_color }};
+        }
+    </style>
+    <body>
+        <h1>{{ title }}</h1>
+
+        <div id="content">
+            <div id="sidebar">
+                {% for time in ruler %}
+                    <div class="sidebar_time">
+                        {{ time }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div id="table">
+                {% for class in classes %}
+                    <div style="height: {{ class.top_margin }}%" class="hidden_entry">
+                        
+                    </div>
+                    <div style="height: calc({{ class.height }}% - 2em)" class="entry">
+                        <p class="duration">{{ class.getStart() }}-{{ class.getEnd() }}</p>
+                        <div class="infoblock">
+                            <p class="name">{{ class.name }}</p>
+                            <p class="location">{{ class.location }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </body>
+</html>
