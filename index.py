@@ -70,3 +70,13 @@ def tableDelta(date_delta):
     }
     
     return render_template("day_view.html", **context)
+
+@app.route("/manage")
+def manage():
+    out = ""
+
+    for name in tafla.getUnique():
+        out += f"<p>{name}</p>"
+
+    return str(out)
+

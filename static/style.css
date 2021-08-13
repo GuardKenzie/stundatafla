@@ -20,7 +20,7 @@ h1 {
     display: inline-block;
     padding: 0.5em;
     border-radius: 0.5rem;
-    filter: drop-shadow(0 0 7px #0008);
+    /* filter: drop-shadow(0 0 7px #0008); */
 }
 
 
@@ -84,7 +84,7 @@ h1 {
     height: 100%;
     display: flex;
     flex-direction: column;
-    filter: drop-shadow(0 0 7px #0008);
+    /* filter: drop-shadow(0 0 7px #0008); */
 }
 
 .infoblock {

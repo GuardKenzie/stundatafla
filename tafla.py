@@ -13,9 +13,11 @@ Dags.   Frá     til     Bygging     Staður      Hópur   Kennarar
 name_regex = r"(\w\w\w\d{3}\w)-\d+ (.+)$"
 
 class Timi:
-    def __init__(self, start, end, class_name, location, class_type):
+    def __init__(self, start, end, class_name, location, class_type, hidden=False):
         self.start      = datetime.strptime(str(start).zfill(4), "%H%M")
         self.end        = datetime.strptime(str(end).zfill(4),   "%H%M")
+
+        self.hidden = hidden
 
         print(class_name)
         split_name = re.findall(name_regex, class_name)[0]
@@ -68,6 +70,12 @@ def _parseTafla():
 
     return stundatafla
 
+def getUnique():
+    stundatafla = _parseTafla()
+
+    return list(stundatafla["Hópur"].unique())
+
+
 def fetchWeek(date_to_fetch: datetime):
     stundatafla = _parseTafla()
 
@@ -88,7 +96,7 @@ def fetchWeek(date_to_fetch: datetime):
 
     return vika
 
-def fetchDay(date_to_fetch: datetime):
+def fetchDay(date_to_fetch: datetime, hidden_classes=[]):
     stundatafla = _parseTafla()
 
     # Get day    
@@ -103,8 +111,15 @@ def fetchDay(date_to_fetch: datetime):
     out = []
 
     # objectify
-    for line in dagur.itertuples():
-        out.append(Timi(line[2], line[3], line[6], line[5], "F"))
+    for _, line in dagur.iterrows():
+        name_of_class = re.findall(name_regex, line["Hópur"])
+
+        if name_of_class and name_of_class[0][0] in hidden_classes:
+            hidden = True
+        else:
+            hidden = False
+
+        out.append(Timi(line["Frá"], line['til'], line["Hópur"], line["Staður"], "F", hidden=hidden))
 
     return Dagur(out)
 
