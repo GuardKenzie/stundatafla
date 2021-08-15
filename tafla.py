@@ -1,9 +1,13 @@
 import pandas as pd
 from datetime import datetime, time, timedelta
 import re
+import json
 
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 TIMEPADDING = timedelta(days=20)
+
+TAFLALOC = "/var/www/mage.black/tafla/sheets/report.xlsx"
+#TAFLALOC = "sheets/report.xlsx"
 
 """
 Format:
@@ -13,16 +17,16 @@ Dags.   Frá     til     Bygging     Staður      Hópur   Kennarar
 name_regex = r"(\w\w\w\d{3}\w)-\d+ (.+)$"
 
 class Timi:
-    def __init__(self, start, end, class_name, location, class_type, hidden=False):
+    def __init__(self, start, end, weekday, class_name, location, class_type, hidden=False):
         self.start      = datetime.strptime(str(start).zfill(4), "%H%M")
         self.end        = datetime.strptime(str(end).zfill(4),   "%H%M")
+        self.weekday    = weekday
 
         self.hidden = hidden
 
-        print(class_name)
         split_name = re.findall(name_regex, class_name)[0]
-        print(split_name)
 
+        self.hopur      = class_name
         self.name       = split_name[1]
         self.id         = split_name[0]
 
@@ -44,6 +48,16 @@ class Timi:
     def __ge__(self, other):
         return self.start >= other.start
 
+    def __eq__(self, other):
+        start_same = self.start == other.start
+        end_same   = self.end   == other.end
+
+        id_same      = self.id      == other.id
+        weekday_same = self.weekday == other.weekday
+
+        return all([start_same, end_same, id_same, weekday_same])
+
+
     def duration(self) -> timedelta:
         return abs(self.end - self.start)
 
@@ -52,6 +66,15 @@ class Timi:
 
     def getEnd(self) -> str:
         return self.end.strftime("%H:%M")
+
+    def getIdentifier(self):
+        out = {
+            "weekday": self.weekday,
+            "start":   int(self.getStart().replace(":", "")),
+            "hopur":   self.hopur
+        }
+        return json.dumps(out)
+
 
 class Dagur:
     def __init__(self, classes):
@@ -65,15 +88,53 @@ class Dagur:
 
 
 def _parseTafla():
-    stundatafla = pd.read_excel("sheets/report.xlsx")
+    stundatafla = pd.read_excel(TAFLALOC)
     stundatafla["Dags."] = stundatafla["Dags."].apply(lambda x: datetime.strptime(x, DATEFORMAT))
 
     return stundatafla
 
-def getUnique():
+def getHiddenClasses():
     stundatafla = _parseTafla()
 
-    return list(stundatafla["Hópur"].unique())
+    # Get hidden classes
+    hidden_classes = stundatafla[stundatafla["hidden"] == True]
+
+    out = []
+    
+    for _, row in hidden_classes.iterrows():
+        timi = Timi(
+            row["Frá"], 
+            row['til'], 
+            row["Dags."].weekday(), 
+            row["Hópur"], 
+            row["Staður"], 
+            "F",
+        )
+
+        out.append(timi)
+
+    return out
+
+
+def hideClass(data):
+    stundatafla = pd.read_excel(TAFLALOC)
+
+    for i, row in stundatafla.iterrows():
+        weekday = data["weekday"] == datetime.strptime(row["Dags."], DATEFORMAT).weekday()
+        start   = data["start"]   == row["Frá"]
+        hopur   = data["hopur"]   == row["Hópur"]
+
+        if weekday and start and hopur:
+            out = str(row)
+            if pd.isnull(row["hidden"]):
+                row["hidden"] = 0
+            
+            stundatafla.at[i, "hidden"] = (row["hidden"] + 1) % 2
+            break
+    
+    stundatafla.to_excel(TAFLALOC)
+    return out
+    
 
 
 def fetchWeek(date_to_fetch: datetime):
@@ -82,22 +143,19 @@ def fetchWeek(date_to_fetch: datetime):
     current_weekday = date_to_fetch.weekday()
     start_of_day = date_to_fetch.replace(hour=0, minute=0, second=0)
 
-    # Next monday
-    days_until_next_monday = timedelta(days=(6 - current_weekday))
-    next_monday = start_of_day + days_until_next_monday
-
     # Last monday
     last_monday = start_of_day - timedelta(days=current_weekday)
 
-    vika = stundatafla[
-        (last_monday <= stundatafla["Dags."]) & 
-        (stundatafla["Dags."] < next_monday)
-        ]
+    vika = [fetchDay(last_monday + timedelta(days=a)) for a in range(7)]
 
     return vika
 
-def fetchDay(date_to_fetch: datetime, hidden_classes=[]):
+
+def fetchDay(date_to_fetch: datetime, discard_hidden=False):
     stundatafla = _parseTafla()
+    
+    # hidden classes
+    hidden_classes = getHiddenClasses()
 
     # Get day    
     start_of_day      = date_to_fetch.replace(hour=0, minute=0, second=0)
@@ -107,19 +165,30 @@ def fetchDay(date_to_fetch: datetime, hidden_classes=[]):
         (start_of_day <= stundatafla["Dags."]) & 
         (stundatafla["Dags."] < start_of_next_day)
         ]
-    
-    out = []
 
     # objectify
+    out = []
+
     for _, line in dagur.iterrows():
-        name_of_class = re.findall(name_regex, line["Hópur"])
+        timi = Timi(
+            line["Frá"], 
+            line['til'], 
+            line["Dags."].weekday(), 
+            line["Hópur"], 
+            line["Staður"], 
+            "F",
+        )
 
-        if name_of_class and name_of_class[0][0] in hidden_classes:
-            hidden = True
-        else:
-            hidden = False
+        timi.hidden = timi in hidden_classes
 
-        out.append(Timi(line["Frá"], line['til'], line["Hópur"], line["Staður"], "F", hidden=hidden))
+        # henda falinn out
+        # 0     0      1
+        # 0     1      1
+        # 1     0      1
+        # 1     1      0
+
+        if not (discard_hidden and timi.hidden):
+            out.append(timi)
 
     return Dagur(out)
 

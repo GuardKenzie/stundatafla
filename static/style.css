@@ -15,12 +15,38 @@ body {
 }
 
 h1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin: auto;
     margin-top: 2em;
+    margin-bottom: 2em;
+
     background-color: var(--fg);
-    display: inline-block;
     padding: 0.5em;
     border-radius: 0.5rem;
+    max-width: 35rem;
+    width: 80%
     /* filter: drop-shadow(0 0 7px #0008); */
+}
+
+h1 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+h1 a:first-of-type {
+    padding-left:  0.5em;
+}
+
+h1 a:last-of-type {
+    padding-right:  0.5em;
+}
+
+h1 p {
+    margin: 0;
+    font-size: min(5vw, 1em);
 }
 
 
@@ -49,6 +75,8 @@ h1 {
     padding-left: 2em;
     border-radius: 0.5em;
     text-align: center;
+    width: 18em;
+    max-width: 50vw;
 }
 
 .entry p {
@@ -89,4 +117,30 @@ h1 {
 
 .infoblock {
     display: inline-block;
+}
+
+#management_table tr:first-of-type td {
+    font-size: 2em;
+}
+
+#management_table tr:last-of-type td {
+    vertical-align: top;
+    padding: 1em;
+}
+
+#management_table .entry {
+    margin-bottom: 0.5em;
+    width: auto;
+}
+
+#management_table .entry .name {
+    margin: 0;
+}
+
+.hidden_colour {
+    opacity: 0.5;
+}
+
+.hidden_entry {
+    opacity: 0;
 }

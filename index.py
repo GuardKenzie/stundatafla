@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 import tafla
 from datetime import date, datetime, time, timedelta
 import random
@@ -34,22 +34,13 @@ def getRuler(spacing=timedelta(minutes=30)):
     out = ["·"] * ((len(time_strings) - 1) * 3 + 1) 
     out[0::3] = time_strings
 
-    print(out)
-
     return out
 
-
 @app.route("/")
-def tableToday():
-    table = tafla.fetchDay(datetime.now())
-
-    return ""
-
-
 @app.route("/<int:date_delta>")
-def tableDelta(date_delta):
+def tableDelta(date_delta=0):
     date = datetime.now() + timedelta(days=date_delta)
-    dagur = tafla.fetchDay(date)
+    dagur = tafla.fetchDay(date, discard_hidden=True)
 
     # calculate margins
     last_margin = 0
@@ -61,12 +52,13 @@ def tableDelta(date_delta):
         c.height = 100 * c.duration().seconds / DAYDURATION
     
     context = {
+        "next_date":        date_delta + 1,
+        "prev_date":        max(0, date_delta - 1),
         "ruler":            getRuler(timedelta(hours=1)),
         "dags":             date, 
         "classes":          dagur.classes, 
         "day_duration":     DAYDURATION,
         "background_color": random.choice(background_colors),
-        "title":            date.strftime("%A - %d. %B")
     }
     
     return render_template("day_view.html", **context)
@@ -74,9 +66,19 @@ def tableDelta(date_delta):
 @app.route("/manage")
 def manage():
     out = ""
+    dagar = tafla.fetchWeek(datetime.now() + tafla.TIMEPADDING)[0:5]
 
-    for name in tafla.getUnique():
-        out += f"<p>{name}</p>"
+    context = {
+        "dagar": dagar,
+        "background_color": random.choice(background_colors)
+    }
 
-    return str(out)
+    return render_template("manage.html", **context)
+
+
+@app.route("/hide", methods=["POST"])
+def hideClass():
+    out = tafla.hideClass(request.get_json())
+
+    return out
 

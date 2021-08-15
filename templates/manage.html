@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <title>{{ title }}</title>
+    </head>
+    <style>
+        @font-face {
+            font-family: "JetBrains Mono";
+            src: url("{{ url_for('static', filename='JetBrainsMono.ttf') }}");
+        }
+
+        body {
+            background-color: {{ background_color }};
+        }
+
+        h1 {
+            color: {{ background_color }};
+        }
+    </style>
+    <body>
+        <h1 style="justify-content: space-around;">
+            Management
+        </h1>
+
+        <div id="content">
+            <table id="management_table">
+                <tr>
+                    <td>Mon</td>
+                    <td>Tue</td>
+                    <td>Wed</td>
+                    <td>Thu</td>
+                    <td>Fri</td>
+                </tr>
+                <tr>
+                    {% for dagur in dagar %}
+                    <td>
+                        {% for class in dagur.classes %}
+                            <div onclick="hideClass(this, {{ class.getIdentifier() }})" class="{{ 'hidden_colour' if class.hidden }} entry">
+                                <p class="name">{{ class.id }}</p>
+                                <p>{{ class.getStart() }}</p>
+                            </div>
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </body>
+    <script>
+        function hideClass(obj, data) {
+            console.log(data)
+
+            fetch("/hide", {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify(data),
+                redirect: "follow"
+            }).then(response => {
+                if(response.ok) {
+                    obj.classList.toggle("hidden_colour")
+                }
+                console.log(response)
+            })
+        }
+    </script>
+</html>
