@@ -1,9 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
+from werkzeug.utils import secure_filename
 import tafla
 from datetime import date, datetime, time, timedelta
 import random
+import pandas as pd
+import os
 
 app = Flask(__name__)
+
+# Time management
 
 day_start = "08:20"
 day_end   = "18:20"
@@ -13,6 +18,8 @@ day_end   = datetime.strptime(day_end, "%H:%M")
 
 DAYDURATION = abs(day_end - day_start).seconds
 
+# Background colours
+
 background_colors = [
     "#e0af68",
     "#f7768e",
@@ -21,6 +28,13 @@ background_colors = [
     "#7dcfff",
     "#bb9af7"
 ]
+
+# File upload
+
+UPLOADFOLDER = tafla.SHEETSFOLDER
+ALLOWEDEXT   = ["xlsx"]
+
+app.config["UPLOAD_FOLDER"] = UPLOADFOLDER
 
 
 def getRuler(spacing=timedelta(minutes=30)):
@@ -35,6 +49,13 @@ def getRuler(spacing=timedelta(minutes=30)):
     out[0::3] = time_strings
 
     return out
+
+
+def allowed_filename(filename):
+    dot_in_name  = "." in filename
+    extension_ok = filename.split(".")[-1] in ALLOWEDEXT
+
+    return dot_in_name and extension_ok
 
 @app.route("/")
 @app.route("/<int:date_delta>")
@@ -81,4 +102,35 @@ def hideClass():
     out = tafla.hideClass(request.get_json())
 
     return out
+
+
+@app.route("/upload", methods=["POST"])
+def uploadTable():
+    if request.method == "POST":
+        # check if we gots file
+        if "file" not in request.files:
+            return "No file"
+        
+        file = request.files["file"]
+
+        if file.filename == "":
+            return "Invalid filename"
+
+        if file and allowed_filename(file.filename):
+            abs_upload_path = os.path.join(UPLOADFOLDER, "report.xlsx")
+
+            file.save(abs_upload_path)
+
+            # add hidden column
+            stundatafla = pd.read_excel(abs_upload_path)
+            stundatafla["hidden"] = 0
+            stundatafla.to_csv(os.path.join(tafla.SHEETSFOLDER, "tafla.csv"))
+
+            # remove old shitty excel sheet
+            os.remove(os.path.join(UPLOADFOLDER, "report.xlsx"))
+
+            return redirect(url_for("manage"))
+
+
+    return
 

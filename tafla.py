@@ -2,11 +2,14 @@ import pandas as pd
 from datetime import datetime, time, timedelta
 import re
 import json
+import os
 
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 TIMEPADDING = timedelta(days=20)
 
-TAFLALOC = "/var/www/mage.black/tafla/sheets/report.xlsx"
+SHEETSFOLDER = "/var/www/mage.black/tafla/sheets/"
+SHEETNAME    = "tafla.csv"
+SHEETLOC     = os.path.join(SHEETSFOLDER, SHEETNAME)
 #TAFLALOC = "sheets/report.xlsx"
 
 """
@@ -88,13 +91,19 @@ class Dagur:
 
 
 def _parseTafla():
-    stundatafla = pd.read_excel(TAFLALOC)
+    if not os.path.isfile(SHEETLOC):
+        return None
+    
+    stundatafla = pd.read_csv(SHEETLOC)
     stundatafla["Dags."] = stundatafla["Dags."].apply(lambda x: datetime.strptime(x, DATEFORMAT))
 
     return stundatafla
 
 def getHiddenClasses():
     stundatafla = _parseTafla()
+
+    if stundatafla is None:
+        return []
 
     # Get hidden classes
     hidden_classes = stundatafla[stundatafla["hidden"] == True]
@@ -117,7 +126,7 @@ def getHiddenClasses():
 
 
 def hideClass(data):
-    stundatafla = pd.read_excel(TAFLALOC)
+    stundatafla = pd.read_csv(SHEETLOC)
 
     for i, row in stundatafla.iterrows():
         weekday = data["weekday"] == datetime.strptime(row["Dags."], DATEFORMAT).weekday()
@@ -126,15 +135,13 @@ def hideClass(data):
 
         if weekday and start and hopur:
             out = str(row)
-            if pd.isnull(row["hidden"]):
-                row["hidden"] = 0
             
             stundatafla.at[i, "hidden"] = (row["hidden"] + 1) % 2
             break
     
-    stundatafla.to_excel(TAFLALOC)
+    stundatafla.to_csv(SHEETLOC)
     return out
-    
+
 
 
 def fetchWeek(date_to_fetch: datetime):
@@ -153,6 +160,9 @@ def fetchWeek(date_to_fetch: datetime):
 
 def fetchDay(date_to_fetch: datetime, discard_hidden=False):
     stundatafla = _parseTafla()
+
+    if stundatafla is None:
+        return Dagur([])
     
     # hidden classes
     hidden_classes = getHiddenClasses()

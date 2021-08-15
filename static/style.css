@@ -144,3 +144,10 @@ h1 p {
 .hidden_entry {
     opacity: 0;
 }
+
+#management_content {
+    margin: auto;
+    padding: 1em;
+    height: 50em;
+    display: inline-block;
+}

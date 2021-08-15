@@ -23,7 +23,7 @@
             Management
         </h1>
 
-        <div id="content">
+        <div id="management_content">
             <table id="management_table">
                 <tr>
                     <td>Mon</td>
@@ -45,6 +45,10 @@
                     {% endfor %}
                 </tr>
             </table>
+            <form action="upload" method="post" enctype = "multipart/form-data">
+                <input type="file" name="file" />
+                <input type="submit" />
+            </form>
         </div>
     </body>
     <script>
