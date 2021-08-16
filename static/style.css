@@ -119,6 +119,10 @@ h1 p {
     display: inline-block;
 }
 
+#management_table {
+    margin-bottom:5em;
+}
+
 #management_table tr:first-of-type td {
     font-size: 2em;
 }
@@ -151,3 +155,45 @@ h1 p {
     height: 50em;
     display: inline-block;
 }
+
+input {
+    display: none;
+}
+
+.button {
+    background-color: var(--fg);
+    color: inherit;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    display: inline;
+    margin: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#sheet_form {
+    display: inline-block;
+    width: 20em;
+}
+
+#sheet_form label {
+    display: block;
+}
+
+#sheet_form label div {
+    display: inline-block;
+}
+
+#file_label {
+    margin-right: 1em;
+    display: flex !important;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#sheet_filename {
+    flex-grow: 1;
+    text-align: left;
+}
+
+

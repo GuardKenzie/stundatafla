@@ -14,7 +14,7 @@
             background-color: {{ background_color }};
         }
 
-        h1 {
+        h1, .button {
             color: {{ background_color }};
         }
     </style>
@@ -45,9 +45,16 @@
                     {% endfor %}
                 </tr>
             </table>
-            <form action="upload" method="post" enctype = "multipart/form-data">
-                <input type="file" name="file" />
-                <input type="submit" />
+            <form id="sheet_form" action="upload" method="post" enctype = "multipart/form-data">
+                <label for="sheet_file" id="file_label">
+                    <div class="button">Select</div>
+                    <div id="sheet_filename">No file</div>
+                </label>
+                <label for="upload_button" id="upload_button_label">
+                    <div style="width:100%" class="button">Upload</div>
+                </label>
+                <input onchange="updateFileLabel(this.value)" type="file" name="file" id="sheet_file"/>
+                <input type="submit" id="upload_button"/>
             </form>
         </div>
     </body>
@@ -68,6 +75,11 @@
                 }
                 console.log(response)
             })
+        }
+
+        function updateFileLabel(filename) {
+            var file_label = document.getElementById("sheet_filename")
+            file_label.innerHTML = filename.split(/[\\/]/).pop()
         }
     </script>
 </html>
