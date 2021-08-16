@@ -149,7 +149,7 @@ def hideClass(data):
             stundatafla.at[i, "hidden"] = (row["hidden"] + 1) % 2
             break
     
-    stundatafla.to_csv(SHEETLOC)
+    stundatafla.to_csv(SHEETLOC, index=False)
     return out
 
 
