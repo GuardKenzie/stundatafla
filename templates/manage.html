@@ -55,7 +55,7 @@
         function hideClass(obj, data) {
             console.log(data)
 
-            fetch("/hide", {
+            fetch("{{ url_for('hideClass') }}", {
                 headers: {
                     "Content-Type": "application/json"
                 },

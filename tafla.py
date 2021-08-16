@@ -3,12 +3,22 @@ from datetime import datetime, time, timedelta
 import re
 import json
 import os
+from flask import Flask
+
+app = Flask(__name__)
+
+DEBUG = app.config["DEBUG"]
 
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 TIMEPADDING = timedelta(days=20)
 
-SHEETSFOLDER = "/var/www/mage.black/tafla/sheets/"
-SHEETNAME    = "tafla.csv"
+if DEBUG:
+    SHEETSFOLDER = "sheets"
+    SHEETNAME = "tafla.csv"
+else:
+    SHEETSFOLDER = "/var/www/mage.black/tafla/sheets/"
+    SHEETNAME    = "tafla.csv"
+
 SHEETLOC     = os.path.join(SHEETSFOLDER, SHEETNAME)
 #TAFLALOC = "sheets/report.xlsx"
 
