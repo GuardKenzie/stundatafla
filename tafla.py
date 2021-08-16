@@ -19,7 +19,7 @@ else:
     SHEETSFOLDER = "/var/www/mage.black/tafla/sheets/"
     SHEETNAME    = "tafla.csv"
 
-SHEETLOC     = os.path.join(SHEETSFOLDER, SHEETNAME)
+SHEETLOC = os.path.join(SHEETSFOLDER, SHEETNAME)
 #TAFLALOC = "sheets/report.xlsx"
 
 """

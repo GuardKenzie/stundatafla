@@ -124,7 +124,7 @@ def uploadTable():
             # add hidden column
             stundatafla = pd.read_excel(abs_upload_path)
             stundatafla["hidden"] = 0
-            stundatafla.to_csv(os.path.join(tafla.SHEETSFOLDER, "tafla.csv"))
+            stundatafla.to_csv(os.path.join(tafla.SHEETSFOLDER, "tafla.csv"), index=False)
 
             # remove old shitty excel sheet
             os.remove(os.path.join(UPLOADFOLDER, "report.xlsx"))
