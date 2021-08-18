@@ -58,9 +58,14 @@ def allowed_filename(filename):
     return dot_in_name and extension_ok
 
 @app.route("/")
-@app.route("/<int:date_delta>")
-def tableDelta(date_delta=0):
-    date = datetime.now() + timedelta(days=date_delta)
+@app.route("/<int:year>/<int:month>/<int:day>")
+def tableDelta(year=None, month=None, day=None):
+
+    if year is None or month is None or day is None:
+        date = datetime.now()
+    else:
+        date = datetime(year, month, day)
+
     dagur = tafla.fetchDay(date, discard_hidden=True)
 
     # calculate margins
@@ -72,9 +77,25 @@ def tableDelta(date_delta=0):
         last_margin  = 100 * abs(day_start - c.end).seconds / DAYDURATION
         c.height = 100 * c.duration().seconds / DAYDURATION
     
+    next_day = date + timedelta(days=1)
+    next_day = {
+        "year":  next_day.year, 
+        "month": next_day.month, 
+        "day":   next_day.day
+    }
+
+    prev_day = date - timedelta(days=1)
+    prev_day = {
+        "year":  prev_day.year, 
+        "month": prev_day.month, 
+        "day":   prev_day.day
+    }
+
+    print(date + timedelta(days=1))
+
     context = {
-        "next_date":        date_delta + 1,
-        "prev_date":        max(0, date_delta - 1),
+        "next_date":        next_day,
+        "prev_date":        prev_day,
         "ruler":            getRuler(timedelta(hours=1)),
         "dags":             date, 
         "classes":          dagur.classes, 
@@ -124,7 +145,7 @@ def uploadTable():
             # add hidden column
             stundatafla = pd.read_excel(abs_upload_path)
             stundatafla["hidden"] = 0
-            stundatafla.to_csv(os.path.join(tafla.SHEETSFOLDER, "tafla.csv"), index=False)
+            stundatafla.to_csv(os.path.join(UPLOADFOLDER, "tafla.csv"), index=False)
 
             # remove old shitty excel sheet
             os.remove(os.path.join(UPLOADFOLDER, "report.xlsx"))

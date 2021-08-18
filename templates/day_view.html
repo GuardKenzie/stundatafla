@@ -21,12 +21,12 @@
     </style>
     <body>
         <h1>
-            <a href="{{ url_for('tableDelta', date_delta=prev_date) }}"><-</a> 
+            <a href="{{ url_for('tableDelta', **prev_date) }}"><-</a> 
             <p>
                 {{ dags.strftime("%A") }}<br>
                 {{ dags.strftime("%d. %B") }}
             </p>
-            <a href="{{ url_for('tableDelta', date_delta=next_date) }}">-></a> 
+            <a href="{{ url_for('tableDelta', **next_date) }}">-></a> 
         </h1>
 
         <div id="content">
