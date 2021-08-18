@@ -101,6 +101,7 @@ def tableDelta(year=None, month=None, day=None):
         "classes":          dagur.classes, 
         "day_duration":     DAYDURATION,
         "background_color": random.choice(background_colors),
+        "title":            date.strftime("%A - %d. %B")
     }
     
     return render_template("day_view.html", **context)
