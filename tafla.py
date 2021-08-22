@@ -48,6 +48,8 @@ class Timi:
         self.top_margin = 0
         self.height     = 0
 
+        self.border_style = "";
+
 
     def __lt__(self, other):
         return self.start < other.start

@@ -70,12 +70,23 @@ def tableDelta(year=None, month=None, day=None):
 
     # calculate margins
     last_margin = 0
+    last_class  = None
     for c in dagur.classes:
         c.top_margin = 100 * abs(day_start - c.start).seconds / DAYDURATION
         c.top_margin -= last_margin
 
         last_margin  = 100 * abs(day_start - c.end).seconds / DAYDURATION
         c.height = 100 * c.duration().seconds / DAYDURATION
+
+        if c.top_margin < 0:
+            total_height = last_class.height + c.height + c.top_margin
+            last_class.height = c.height = total_height / 2
+            c.top_margin = 0
+
+            last_class.border_style = "border-bottom-left-radius: 0; border-bottom-right-radius: 0;"
+            c.border_style          = "border-top-left-radius:    0; border-top-right-radius:    0;"
+
+        last_class = c
     
     next_day = date + timedelta(days=1)
     next_day = {
