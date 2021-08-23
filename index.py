@@ -44,7 +44,7 @@ app.config["UPLOAD_FOLDER"] = UPLOADFOLDER
 app.config["SECRET_KEY"]    = SECRET_KEY
 
 def verifyUsername(username):
-    pattern = r"^[A-Za-z ]+$"
+    pattern = r"^[A-Za-z0-9]+$"
     return re.match(pattern, username) is not None
 
 
@@ -164,9 +164,22 @@ def hideClass():
 @app.route("/login", methods=["POST"])
 def login():
     if request.method == "POST":
-        session["username"] = request.form["username"].lower().strip()
+        if "username" not in request.form.keys():
+            return "Username missing"
+        
+        username = request.form["username"]
 
-    return redirect(url_for("manage"))
+        if username == "":
+            return "Username missing"
+
+        if not verifyUsername(username):
+            return "Username can only include alpha-numeric characters"
+
+        session["username"] = username.lower().strip()
+
+        return redirect(url_for("manage"))
+    
+    return redirect(url_for("index"))
 
 
 @app.route("/logout")
