@@ -206,10 +206,9 @@ input {
 }
 
 #login_form {
-    position: relative;
-    top: 35%;
-    height: 10em;
-    padding:1em;
+    position: fixed;
+    top: 25%;
+    padding:2em;
 }
 
 #username {
