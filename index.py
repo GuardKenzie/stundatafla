@@ -75,6 +75,9 @@ def allowed_filename(filename):
 
 @app.route("/")
 def index():
+    if "username" in session.keys():
+        return tableDelta()
+
     context = {
         "background_color": random.choice(background_colors)
     }
