@@ -3,7 +3,7 @@ from datetime import datetime, time, timedelta
 import re
 import json
 import os
-from flask import Flask
+from flask import Flask, session
 
 app = Flask(__name__)
 
@@ -14,12 +14,9 @@ TIMEPADDING = timedelta(days=20)
 
 if DEBUG:
     SHEETSFOLDER = "sheets"
-    SHEETNAME = "tafla.csv"
 else:
     SHEETSFOLDER = "/var/www/mage.black/tafla/sheets/"
-    SHEETNAME    = "tafla.csv"
 
-SHEETLOC = os.path.join(SHEETSFOLDER, SHEETNAME)
 #TAFLALOC = "sheets/report.xlsx"
 
 """
@@ -103,10 +100,12 @@ class Dagur:
 
 
 def _parseTafla():
-    if not os.path.isfile(SHEETLOC):
+    sheetloc = getSheetLoc()
+
+    if not os.path.isfile(sheetloc):
         return None
     
-    stundatafla = pd.read_csv(SHEETLOC)
+    stundatafla = pd.read_csv(sheetloc)
     stundatafla["Dags."] = stundatafla["Dags."].apply(lambda x: datetime.strptime(x, DATEFORMAT))
 
     return stundatafla
@@ -136,9 +135,12 @@ def getHiddenClasses():
 
     return out
 
+def getSheetLoc():
+    return os.path.join(SHEETSFOLDER, f"{session['username']}.csv")
 
 def hideClass(data):
-    stundatafla = pd.read_csv(SHEETLOC)
+    sheetloc = getSheetLoc()
+    stundatafla = pd.read_csv(sheetloc)
 
     for i, row in stundatafla.iterrows():
         weekday = data["weekday"] == datetime.strptime(row["Dags."], DATEFORMAT).weekday()
@@ -151,7 +153,7 @@ def hideClass(data):
             stundatafla.at[i, "hidden"] = (row["hidden"] + 1) % 2
             break
     
-    stundatafla.to_csv(SHEETLOC, index=False)
+    stundatafla.to_csv(sheetloc, index=False)
     return out
 
 

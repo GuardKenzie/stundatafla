@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <title>Log in</title>
+    </head>
+    <style>
+        @font-face {
+            font-family: "JetBrains Mono";
+            src: url("{{ url_for('static', filename='JetBrainsMono.ttf') }}");
+        }
+
+        @font-face {
+            font-family: "JetBrains Mono";
+            font-style: italic;
+            src: url("{{ url_for('static', filename='JetBrainsMono-Italic.ttf') }}");
+        }
+
+        body {
+            background-color: {{ background_color }};
+        }
+
+        h1 {
+            color: {{ background_color }};
+        }
+    </style>
+    <body>
+        <div id="content">
+            <form id="login_form" action="login" method="POST">
+                <input autocomplete="off" placeholder="username" id="username" name="username">
+                <input type="submit">
+            </form>
+        </div>
+    </body>
+</html>

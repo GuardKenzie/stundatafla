@@ -166,7 +166,6 @@ input {
     padding: 0.5rem;
     border-radius: 0.5rem;
     display: inline;
-    margin: 1em;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
@@ -185,10 +184,20 @@ input {
 }
 
 #file_label {
-    margin-right: 1em;
     display: flex !important;
     justify-content: space-around;
     align-items: center;
+    cursor: pointer;
+}
+
+#file_label .button {
+    margin-right: 1em;
+}
+
+#upload_button_label .button {
+    padding-left: 0;
+    padding-right: 0;
+    cursor: pointer;
 }
 
 #sheet_filename {
@@ -196,4 +205,34 @@ input {
     text-align: left;
 }
 
+#login_form {
+    position: absolute;
+    top: 35%;
+}
 
+#username {
+    background-color: #0000;
+    color: var(--fg);
+    border: none;
+    border-bottom: 0.1em solid var(--fg);
+    font-size: 3em;
+    width: 100%;
+    padding: 0.5rem;
+    outline: none;
+    display: unset;
+    font-family: "JetBrains Mono";
+}
+
+::placeholder {
+    font-style: italic;
+}
+
+#logout_button {
+    display: block;
+    width: 20em;
+    margin:auto;
+    padding-left: 0;
+    padding-right: 0;
+    margin-top: 2em;
+    text-decoration: none;
+}

@@ -20,7 +20,7 @@
     </style>
     <body>
         <h1 style="justify-content: space-around;">
-            Management
+            Management {{ username }}
         </h1>
 
         <div id="management_content">
@@ -56,6 +56,8 @@
                 <input onchange="updateFileLabel(this.value)" type="file" name="file" id="sheet_file"/>
                 <input type="submit" id="upload_button"/>
             </form>
+
+            <a id="logout_button" class="button" href="{{ url_for('logout') }}">Log out</a>
         </div>
     </body>
     <script>

@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.utils import secure_filename
 import tafla
 from datetime import date, datetime, time, timedelta
 import random
 import pandas as pd
 import os
+import re
 
 app = Flask(__name__)
 
@@ -34,7 +35,17 @@ background_colors = [
 UPLOADFOLDER = tafla.SHEETSFOLDER
 ALLOWEDEXT   = ["xlsx"]
 
+# App config
+
+with open("SECRET", "rb") as f:
+    SECRET_KEY = f.read()
+
 app.config["UPLOAD_FOLDER"] = UPLOADFOLDER
+app.config["SECRET_KEY"]    = SECRET_KEY
+
+def verifyUsername(username):
+    pattern = r"^[A-Za-z ]+$"
+    return re.match(pattern, username) is not None
 
 
 def getRuler(spacing=timedelta(minutes=30)):
@@ -58,8 +69,17 @@ def allowed_filename(filename):
     return dot_in_name and extension_ok
 
 @app.route("/")
+def index():
+    context = {
+        "background_color": random.choice(background_colors)
+    }
+
+    return render_template("index.html", **context)
+
 @app.route("/<int:year>/<int:month>/<int:day>")
 def tableDelta(year=None, month=None, day=None):
+    if "username" not in session.keys():
+        return redirect(url_for("index"))
 
     if year is None or month is None or day is None:
         date = datetime.now()
@@ -119,12 +139,16 @@ def tableDelta(year=None, month=None, day=None):
 
 @app.route("/manage")
 def manage():
+    if "username" not in session.keys():
+        return redirect(url_for("index"))
+
     out = ""
     dagar = tafla.fetchWeek(datetime.now() + tafla.TIMEPADDING)[0:5]
 
     context = {
         "dagar": dagar,
-        "background_color": random.choice(background_colors)
+        "background_color": random.choice(background_colors),
+        "username": session['username'].capitalize()
     }
 
     return render_template("manage.html", **context)
@@ -135,6 +159,22 @@ def hideClass():
     out = tafla.hideClass(request.get_json())
 
     return out
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    if request.method == "POST":
+        session["username"] = request.form["username"].lower().strip()
+
+    return redirect(url_for("manage"))
+
+
+@app.route("/logout")
+def logout():
+    if "username" in session.keys():
+        session.pop("username")
+    
+    return redirect(url_for("index"))
 
 
 @app.route("/upload", methods=["POST"])
@@ -150,17 +190,17 @@ def uploadTable():
             return "Invalid filename"
 
         if file and allowed_filename(file.filename):
-            abs_upload_path = os.path.join(UPLOADFOLDER, "report.xlsx")
+            abs_upload_path = os.path.join(UPLOADFOLDER, f"{session['username']}.xlsx")
 
             file.save(abs_upload_path)
 
             # add hidden column
             stundatafla = pd.read_excel(abs_upload_path)
             stundatafla["hidden"] = 0
-            stundatafla.to_csv(os.path.join(UPLOADFOLDER, "tafla.csv"), index=False)
+            stundatafla.to_csv(os.path.join(UPLOADFOLDER, f"{session['username']}.csv"), index=False)
 
             # remove old shitty excel sheet
-            os.remove(os.path.join(UPLOADFOLDER, "report.xlsx"))
+            os.remove(os.path.join(UPLOADFOLDER, f"{session['username']}.xlsx"))
 
             return redirect(url_for("manage"))
 
