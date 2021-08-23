@@ -183,6 +183,7 @@ def login():
         if not verifyUsername(username):
             return "Username can only include alpha-numeric characters"
 
+        session.permanent = True
         session["username"] = username.lower().strip()
 
         return redirect(url_for("manage"))

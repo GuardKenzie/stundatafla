@@ -206,8 +206,10 @@ input {
 }
 
 #login_form {
-    position: absolute;
+    position: relative;
     top: 35%;
+    height: 10em;
+    padding:1em;
 }
 
 #username {
@@ -221,6 +223,7 @@ input {
     outline: none;
     display: unset;
     font-family: "JetBrains Mono";
+    box-sizing: border-box;
 }
 
 ::placeholder {
