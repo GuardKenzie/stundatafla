@@ -37,7 +37,12 @@ ALLOWEDEXT   = ["xlsx"]
 
 # App config
 
-with open("SECRET", "rb") as f:
+if tafla.DEBUG:
+    SECRET_LOC = "SECRET"
+else:
+    SHEETSFOLDER = "/var/www/mage.black/tafla/SECRET"
+
+with open(SECRET_LOC, "rb") as f:
     SECRET_KEY = f.read()
 
 app.config["UPLOAD_FOLDER"] = UPLOADFOLDER
