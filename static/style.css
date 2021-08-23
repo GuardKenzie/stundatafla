@@ -209,6 +209,8 @@ input {
     position: fixed;
     top: 25%;
     padding:2em;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 #username {
@@ -218,6 +220,7 @@ input {
     border-bottom: 0.1em solid var(--fg);
     font-size: 3em;
     width: 100%;
+    max-width: 35rem;
     padding: 0.5rem;
     outline: none;
     display: unset;
@@ -227,6 +230,8 @@ input {
 
 ::placeholder {
     font-style: italic;
+    color: var(--fg);
+    opacity: 0.5;
 }
 
 #logout_button {
