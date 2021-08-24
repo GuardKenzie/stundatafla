@@ -2,6 +2,7 @@
 [Þessi vefsíða](https://mage.black/tafla) er byggð til að halda utan um stundatöfluna í Háskóla Íslands því Ugla sökkar.
 
 ## Hvernig skal byrja?
+0. Farið inn á https://mage.black/tafla og veljið notendanafn (enter fyrir submit) 
 1. Farið inn á stundatöfluna ykkar í Uglu
 2. Veljið "birta sem lista" og ýtið á excel hnappinn neðst
 3. Takið skrána sem þið sóttuð (`report.xlsx`) og hlaðið upp á https://mage.black/tafla/manage
