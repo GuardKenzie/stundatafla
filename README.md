@@ -1,5 +1,5 @@
 # Stundatafla fyrir HÍ
-[Þessi vefsíða](https://mage.black/tafla) er byggð til að halda utan um stundatöfluna í Háskóla Íslands.
+[Þessi vefsíða](https://mage.black/tafla) er byggð til að halda utan um stundatöfluna í Háskóla Íslands því Ugla sökkar.
 
 ## Hvernig skal byrja?
 1. Farið inn á stundatöfluna ykkar í Uglu
